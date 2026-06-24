@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>For-me — Virtual Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px }
+    pre { background: #f4f4f4; padding: 10px }
+    .device { margin-bottom: 10px; padding: 8px; border: 1px solid #ddd }
+  </style>
+</head>
+<body>
+  <h1>For-me — Virtual Dashboard</h1>
+  <div id="devices">Loading...</div>
+  <script>
+    async function fetchDevices(){
+      try{
+        const res = await fetch('/devices');
+        const j = await res.json();
+        const el = document.getElementById('devices');
+        if(!j.devices || j.devices.length === 0){
+          el.innerHTML = '<p>No devices yet (simulator may be starting).</p>';
+          return;
+        }
+        el.innerHTML = j.devices.map(d => `
+          <div class=\"device\">\n            <strong>${d.device_id}</strong> (<em>${d.type}</em>)<br/>\n            value: ${d.value} at ${new Date(d.ts*1000).toLocaleTimeString()}\n          </div>
+        `).join('');
+      }catch(e){
+        document.getElementById('devices').innerText = 'Error fetching devices: '+e;
+      }
+    }
+    fetchDevices();
+    setInterval(fetchDevices, 2000);
+  </script>
+</body>
+</html>
